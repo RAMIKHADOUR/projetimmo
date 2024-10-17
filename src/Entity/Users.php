@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\UsersRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UsersRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -19,22 +20,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
-    private ?string $email = null;
-
-    /**
-     * @var list<string> The user roles
-     */
-    #[ORM\Column]
-    #[Assert\NotNull()]
-    private array $roles = ['ROLE_USER'];
-
-    /**
-     * @var string The hashed password
-     */
-    #[ORM\Column]
-    private ?string $password = null;
-
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank()]
     #[Assert\Length(min:2,max:50)]
@@ -45,15 +30,63 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(min:2,max:50)]
     private ?string $prenom = null;
 
+    #[ORM\Column(length: 180)]
+    private ?string $email = null;
+
+    /**
+     * @var list<string> The user roles
+     */
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    #[Assert\NotNull()]
+    private array $roles = ['ROLE_USER'];
+
+    private ?string $plainPassword=null;
+
+    /**
+     * @var string The hashed password
+     */
+    #[ORM\Column]
+    private ?string $password = null;
+
+    #[ORM\Column]
+    private ?DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
     private bool $isVerified = false;
 
+    public function __construct()
+    {
+        $this->createdAt = new DateTimeImmutable();
+    
+    }
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getPrenom(): ?string
+    {
+        return $this->prenom;
+    }
+
+    public function setPrenom(string $prenom): static
+    {
+        $this->prenom = $prenom;
+
+        return $this;
     }
 
     public function getEmail(): ?string
@@ -126,29 +159,30 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getNom(): ?string
+    /**
+     * Get the value of plainPassword
+     *
+     * @return ?string
+     */
+    public function getPlainPassword(): ?string
     {
-        return $this->nom;
+        return $this->plainPassword;
     }
 
-    public function setNom(string $nom): static
+    /**
+     * Set the value of plainPassword
+     *
+     * @param ?string $plainPassword
+     *
+     * @return self
+     */
+    public function setPlainPassword(?string $plainPassword): self
     {
-        $this->nom = $nom;
+        $this->plainPassword = $plainPassword;
 
         return $this;
     }
 
-    public function getPrenom(): ?string
-    {
-        return $this->prenom;
-    }
-
-    public function setPrenom(string $prenom): static
-    {
-        $this->prenom = $prenom;
-
-        return $this;
-    }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
